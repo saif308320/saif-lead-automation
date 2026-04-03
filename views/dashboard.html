@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Saif Lead Automation — Dashboard</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Sora:wght@300;400;600;700&display=swap');
+
+  :root {
+    --bg: #080812;
+    --bg2: #0f0f1e;
+    --bg3: #161628;
+    --border: #1e1e35;
+    --cyan: #00d4ff;
+    --green: #10b981;
+    --yellow: #f59e0b;
+    --red: #f87171;
+    --text: #e2e8f0;
+    --muted: #64748b;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Sora', sans-serif;
+    min-height: 100vh;
+  }
+
+  .header {
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+    padding: 16px 30px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .header h1 {
+    font-size: 18px;
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--cyan), #0066cc);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .badge {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 3px 12px;
+    font-size: 11px;
+    color: var(--muted);
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .login-screen {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+  }
+
+  .login-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 50px;
+    width: 100%;
+    max-width: 400px;
+    text-align: center;
+  }
+
+  .login-card h2 {
+    font-size: 22px;
+    margin-bottom: 8px;
+    color: var(--cyan);
+  }
+
+  .login-card p { color: var(--muted); margin-bottom: 30px; font-size: 14px; }
+
+  input[type="password"], input[type="text"] {
+    width: 100%;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 16px;
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    outline: none;
+    transition: border 0.2s;
+    margin-bottom: 12px;
+  }
+
+  input:focus { border-color: var(--cyan); }
+
+  .btn {
+    background: linear-gradient(135deg, var(--cyan), #0066cc);
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    padding: 14px 28px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    width: 100%;
+    transition: opacity 0.2s;
+    font-family: 'Sora', sans-serif;
+  }
+
+  .btn:hover { opacity: 0.85; }
+
+  .btn-sm {
+    padding: 6px 14px;
+    font-size: 12px;
+    width: auto;
+    border-radius: 7px;
+  }
+
+  .btn-red { background: linear-gradient(135deg, #dc2626, #991b1b); }
+  .btn-green { background: linear-gradient(135deg, var(--green), #059669); }
+  .btn-yellow { background: linear-gradient(135deg, var(--yellow), #d97706); color: #111; }
+
+  .dashboard { padding: 30px; }
+
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 16px;
+    margin-bottom: 30px;
+  }
+
+  .stat-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 22px;
+  }
+
+  .stat-card .label { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+  .stat-card .value { font-size: 32px; font-weight: 700; font-family: 'JetBrains Mono', monospace; }
+  .stat-card .value.cyan { color: var(--cyan); }
+  .stat-card .value.green { color: var(--green); }
+  .stat-card .value.yellow { color: var(--yellow); }
+  .stat-card .value.red { color: var(--red); }
+
+  .section-title {
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--muted);
+    margin-bottom: 16px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .leads-list { display: flex; flex-direction: column; gap: 12px; }
+
+  .lead-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px;
+    transition: border-color 0.2s;
+  }
+
+  .lead-card:hover { border-color: #2a2a45; }
+
+  .lead-card.responded { border-left: 3px solid var(--green); }
+  .lead-card.active { border-left: 3px solid var(--cyan); }
+  .lead-card.closed { border-left: 3px solid var(--muted); opacity: 0.7; }
+
+  .lead-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 12px;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .lead-name { font-size: 16px; font-weight: 700; }
+  .lead-email { color: var(--cyan); font-size: 13px; margin-top: 2px; }
+
+  .status-pill {
+    border-radius: 20px;
+    padding: 4px 12px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+  }
+
+  .status-active { background: rgba(0,212,255,0.15); color: var(--cyan); }
+  .status-responded { background: rgba(16,185,129,0.15); color: var(--green); }
+  .status-closed { background: rgba(100,116,139,0.15); color: var(--muted); }
+
+  .lead-meta {
+    display: flex;
+    gap: 20px;
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+  }
+
+  .lead-message {
+    background: var(--bg3);
+    border-radius: 8px;
+    padding: 12px;
+    font-size: 13px;
+    color: #94a3b8;
+    line-height: 1.6;
+    margin-bottom: 12px;
+    font-style: italic;
+  }
+
+  .lead-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+  .history-toggle {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    border-radius: 7px;
+    padding: 5px 12px;
+    font-size: 11px;
+    cursor: pointer;
+    font-family: 'Sora', sans-serif;
+    transition: all 0.2s;
+  }
+
+  .history-toggle:hover { border-color: var(--cyan); color: var(--cyan); }
+
+  .history-box {
+    display: none;
+    margin-top: 12px;
+    background: var(--bg3);
+    border-radius: 8px;
+    padding: 14px;
+  }
+
+  .history-box.open { display: block; }
+
+  .history-item {
+    display: flex;
+    gap: 12px;
+    padding: 6px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 12px;
+  }
+
+  .history-item:last-child { border-bottom: none; }
+  .history-event { color: var(--cyan); font-family: 'JetBrains Mono', monospace; min-width: 150px; }
+  .history-time { color: var(--muted); }
+
+  .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--muted);
+  }
+
+  .empty-state .icon { font-size: 48px; margin-bottom: 16px; }
+
+  .refresh-btn {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    color: var(--text);
+    border-radius: 8px;
+    padding: 8px 16px;
+    font-size: 12px;
+    cursor: pointer;
+    font-family: 'Sora', sans-serif;
+    margin-left: auto;
+    display: block;
+    margin-bottom: 16px;
+    transition: all 0.2s;
+  }
+
+  .refresh-btn:hover { border-color: var(--cyan); color: var(--cyan); }
+
+  .auto-refresh { color: var(--muted); font-size: 11px; text-align: center; margin-top: 20px; }
+
+  #loginError { color: var(--red); font-size: 13px; margin-top: 10px; display: none; }
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div class="login-screen" id="loginScreen">
+  <div class="login-card">
+    <div style="font-size: 48px; margin-bottom: 16px;">🔐</div>
+    <h2>Lead Dashboard</h2>
+    <p>Saif Portfolio Automation</p>
+    <input type="password" id="passwordInput" placeholder="Enter admin password..." onkeydown="if(event.key==='Enter')login()">
+    <button class="btn" onclick="login()">Access Dashboard</button>
+    <div id="loginError">Wrong password!</div>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dashboardScreen" style="display:none;">
+  <div class="header">
+    <h1>⚡ Lead Automation</h1>
+    <span class="badge">7-Day Sequence</span>
+    <span class="badge" id="serverStatus">● Live</span>
+    <span style="margin-left: auto; color: var(--muted); font-size: 12px;" id="lastRefresh"></span>
+  </div>
+
+  <div class="dashboard">
+    <!-- Stats -->
+    <div class="stats-row" id="statsRow">
+      <div class="stat-card"><div class="label">Total Leads</div><div class="value cyan" id="statTotal">—</div></div>
+      <div class="stat-card"><div class="label">Active</div><div class="value yellow" id="statActive">—</div></div>
+      <div class="stat-card"><div class="label">Responded</div><div class="value green" id="statResponded">—</div></div>
+      <div class="stat-card"><div class="label">Closed</div><div class="value" id="statClosed" style="color:var(--muted)">—</div></div>
+    </div>
+
+    <!-- Leads -->
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+      <div class="section-title">All Leads</div>
+      <button class="refresh-btn" onclick="loadLeads()">↻ Refresh</button>
+    </div>
+
+    <div class="leads-list" id="leadsList">
+      <div class="empty-state"><div class="icon">⏳</div><p>Loading leads...</p></div>
+    </div>
+
+    <div class="auto-refresh">Auto-refreshes every 30 seconds</div>
+  </div>
+</div>
+
+<script>
+let adminPassword = '';
+const BASE_URL = window.location.origin;
+
+function login() {
+  const pw = document.getElementById('passwordInput').value;
+  if (!pw) return;
+  adminPassword = pw;
+  loadLeads(true);
+}
+
+async function loadLeads(isLogin = false) {
+  try {
+    const res = await fetch(`${BASE_URL}/api/leads?password=${encodeURIComponent(adminPassword)}`);
+    if (res.status === 403) {
+      if (isLogin) {
+        document.getElementById('loginError').style.display = 'block';
+      }
+      return;
+    }
+    const data = await res.json();
+
+    if (isLogin) {
+      document.getElementById('loginScreen').style.display = 'none';
+      document.getElementById('dashboardScreen').style.display = 'block';
+    }
+
+    renderLeads(data.leads || []);
+    document.getElementById('lastRefresh').textContent = 'Last updated: ' + new Date().toLocaleTimeString();
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+function renderLeads(leads) {
+  // Stats
+  const active = leads.filter(l => l.status === 'active').length;
+  const responded = leads.filter(l => l.status === 'responded').length;
+  const closed = leads.filter(l => l.status === 'closed').length;
+  document.getElementById('statTotal').textContent = leads.length;
+  document.getElementById('statActive').textContent = active;
+  document.getElementById('statResponded').textContent = responded;
+  document.getElementById('statClosed').textContent = closed;
+
+  const container = document.getElementById('leadsList');
+  if (!leads.length) {
+    container.innerHTML = '<div class="empty-state"><div class="icon">📭</div><p>No leads yet. Share your portfolio!</p></div>';
+    return;
+  }
+
+  container.innerHTML = leads.map(lead => `
+    <div class="lead-card ${lead.status}" id="card-${lead.id}">
+      <div class="lead-header">
+        <div>
+          <div class="lead-name">${escHtml(lead.name)}</div>
+          <div class="lead-email">${escHtml(lead.email)}</div>
+        </div>
+        <span class="status-pill status-${lead.status}">${lead.status}</span>
+      </div>
+      <div class="lead-meta">
+        <span>🛠 ${escHtml(lead.service || 'General')}</span>
+        ${lead.phone ? `<span>📱 ${escHtml(lead.phone)}</span>` : ''}
+        <span>⏰ ${new Date(lead.submittedAt).toLocaleString('en-PK')}</span>
+        ${lead.nextActionAt && lead.status === 'active' ? `<span style="color:var(--cyan)">⚡ Next: ${escHtml(lead.nextStepName || 'Scheduled')} @ ${new Date(lead.nextActionAt).toLocaleString('en-PK')}</span>` : ''}
+      </div>
+      <div class="lead-message">"${escHtml(lead.message)}"</div>
+      <div class="lead-actions">
+        ${lead.status === 'active' ? `
+          <button class="btn btn-sm btn-green" onclick="markResponded('${lead.id}')">✅ Mark Responded</button>
+          <button class="btn btn-sm btn-red" onclick="closeLead('${lead.id}')">🔒 Close Lead</button>
+        ` : ''}
+        <a href="mailto:${escHtml(lead.email)}?subject=Re: ${escHtml(lead.service)} — Follow Up" class="btn btn-sm btn-yellow" style="text-decoration:none; display:inline-block;">📧 Email</a>
+        ${lead.phone ? `<a href="https://wa.me/${lead.phone.replace(/\D/g,'')}?text=Hi ${encodeURIComponent(lead.name.split(' ')[0])}, following up on your inquiry!" class="btn btn-sm" style="background:#25D366; text-decoration:none; display:inline-block;">💬 WhatsApp</a>` : ''}
+        <button class="history-toggle" onclick="toggleHistory('${lead.id}')">🕐 History</button>
+      </div>
+      <div class="history-box" id="history-${lead.id}">
+        ${(lead.history || []).length === 0 ? '<p style="color:var(--muted);font-size:12px;">No history yet</p>' :
+          lead.history.map(h => `
+            <div class="history-item">
+              <span class="history-event">${escHtml(h.event)}</span>
+              <span>${escHtml(h.detail || '')}</span>
+              <span class="history-time" style="margin-left:auto">${new Date(h.at).toLocaleString('en-PK')}</span>
+            </div>
+          `).join('')
+        }
+      </div>
+    </div>
+  `).join('');
+}
+
+async function markResponded(id) {
+  if (!confirm('Mark this lead as responded? Sequence will STOP.')) return;
+  try {
+    await fetch(`${BASE_URL}/api/responded/${id}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ secret: adminPassword })
+    });
+    loadLeads();
+  } catch (err) { alert('Error: ' + err.message); }
+}
+
+async function closeLead(id) {
+  if (!confirm('Close this lead permanently?')) return;
+  try {
+    await fetch(`${BASE_URL}/api/close/${id}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ secret: adminPassword })
+    });
+    loadLeads();
+  } catch (err) { alert('Error: ' + err.message); }
+}
+
+function toggleHistory(id) {
+  const box = document.getElementById('history-' + id);
+  box.classList.toggle('open');
+}
+
+function escHtml(str) {
+  if (!str) return '';
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// Auto-refresh every 30s
+setInterval(() => {
+  if (adminPassword) loadLeads();
+}, 30000);
+</script>
+</body>
+</html>

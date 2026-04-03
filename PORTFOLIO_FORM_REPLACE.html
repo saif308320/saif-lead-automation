@@ -1,0 +1,142 @@
+<!-- ============================================================
+  PORTFOLIO CONTACT FORM — Replace your existing Formspree form
+  Paste this entire section where your form currently is
+  
+  IMPORTANT: Change YOUR_BACKEND_URL to your Railway URL
+  ============================================================ -->
+
+<div class="contact-card" data-aos="fade-left">
+  <form class="form-grid" id="contactForm">
+
+    <input type="hidden" name="_subject" value="🔥 New Project Inquiry — Saif Portfolio">
+    <input type="text" name="_gotcha" style="display:none">
+
+    <div class="form-group" style="grid-column: span 2;">
+      <input
+        type="text"
+        name="name"
+        id="lead_name"
+        placeholder="Your Full Name *"
+        required
+        class="form-input"
+      >
+    </div>
+
+    <div class="form-group">
+      <input
+        type="email"
+        name="email"
+        id="lead_email"
+        placeholder="Email Address *"
+        required
+        class="form-input"
+      >
+    </div>
+
+    <div class="form-group">
+      <input
+        type="tel"
+        name="phone"
+        id="lead_phone"
+        placeholder="WhatsApp / Phone"
+        class="form-input"
+      >
+    </div>
+
+    <div class="form-group" style="grid-column: span 2;">
+      <select name="service" id="lead_service" class="form-input">
+        <option value="">Select Service</option>
+        <option value="GHL Automation">GHL Automation</option>
+        <option value="Portfolio Website">Portfolio Website</option>
+        <option value="Web Development">Web Development</option>
+        <option value="CRM Setup">CRM Setup</option>
+        <option value="Lead Generation">Lead Generation</option>
+        <option value="Other">Other</option>
+      </select>
+    </div>
+
+    <div class="form-group" style="grid-column: span 2;">
+      <textarea
+        name="message"
+        id="lead_message"
+        rows="5"
+        placeholder="Tell me about your project... *"
+        required
+        class="form-input"
+      ></textarea>
+    </div>
+
+    <!-- Submit Button -->
+    <div style="grid-column: span 2;">
+      <button type="submit" class="submit-btn" id="submitBtn">
+        <span id="btnText">Send Message 🚀</span>
+        <span id="btnLoader" style="display:none;">Sending...</span>
+      </button>
+    </div>
+
+    <!-- Success / Error Messages -->
+    <div id="formSuccess" style="display:none; grid-column:span 2; background:rgba(16,185,129,0.1); border:1px solid #10b981; border-radius:10px; padding:16px; color:#10b981; text-align:center;">
+      ✅ Message received! You'll hear from me shortly. Check your email!
+    </div>
+    <div id="formError" style="display:none; grid-column:span 2; background:rgba(248,113,113,0.1); border:1px solid #f87171; border-radius:10px; padding:16px; color:#f87171; text-align:center;">
+      ❌ Something went wrong. Please email me directly at ghl.expert99@gmail.com
+    </div>
+
+  </form>
+</div>
+
+<script>
+// ============================================================
+// CHANGE THIS TO YOUR RAILWAY URL!
+// ============================================================
+const BACKEND_URL = 'https://YOUR-PROJECT.up.railway.app';
+
+document.getElementById('contactForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
+
+  const btn = document.getElementById('submitBtn');
+  const btnText = document.getElementById('btnText');
+  const btnLoader = document.getElementById('btnLoader');
+  const successDiv = document.getElementById('formSuccess');
+  const errorDiv = document.getElementById('formError');
+
+  // Hide previous messages
+  successDiv.style.display = 'none';
+  errorDiv.style.display = 'none';
+
+  // Loading state
+  btn.disabled = true;
+  btnText.style.display = 'none';
+  btnLoader.style.display = 'inline';
+
+  try {
+    const response = await fetch(BACKEND_URL + '/api/contact', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: document.getElementById('lead_name').value.trim(),
+        email: document.getElementById('lead_email').value.trim(),
+        phone: document.getElementById('lead_phone').value.trim(),
+        service: document.getElementById('lead_service').value,
+        message: document.getElementById('lead_message').value.trim(),
+      })
+    });
+
+    const data = await response.json();
+
+    if (data.success) {
+      successDiv.style.display = 'block';
+      document.getElementById('contactForm').reset();
+    } else {
+      errorDiv.textContent = '❌ ' + (data.error || 'Something went wrong.');
+      errorDiv.style.display = 'block';
+    }
+  } catch (err) {
+    errorDiv.style.display = 'block';
+  } finally {
+    btn.disabled = false;
+    btnText.style.display = 'inline';
+    btnLoader.style.display = 'none';
+  }
+});
+</script>
