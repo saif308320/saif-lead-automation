@@ -10,8 +10,8 @@ const { startSequence, stopSequence } = require('../utils/automationEngine');
 // ============================================
 router.post('/contact', async (req, res) => {
   try {
-    const { name, email, phone, message, service } = req.body;
-
+const body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
+const { name, email, phone, message, service } = body;
     // Basic validation
     if (!name || !email || !message) {
       return res.status(400).json({ success: false, error: 'Name, email and message are required' });

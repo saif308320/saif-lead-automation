@@ -21,6 +21,7 @@ app.use(cors({
 app.options('*', cors());
 
 app.use(express.json());
+app.use(express.text({ type: 'text/plain' }));
 app.use(express.urlencoded({ extended: true }));
 
 // Rate limit form submissions (max 5 per 15 mins per IP)
