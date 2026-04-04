@@ -1,5 +1,9 @@
+const multer = require('multer');
+const upload = multer();
+
 const express = require('express');
 const router = express.Router();
+// ... baqi code
 const { createLead, getAllLeads, getLead, markResponded, closeLead } = require('../utils/leadStore');
 const { notifySaif, sendWelcomeEmail } = require('../utils/emailService');
 const { notifyNewLead } = require('../utils/whatsappService');
@@ -8,7 +12,7 @@ const { startSequence, stopSequence } = require('../utils/automationEngine');
 // ============================================
 // POST /api/contact — Portfolio form submission
 // ============================================
-router.post('/contact', async (req, res) => {
+router.post('/contact', upload.none(), async (req, res) => {
   try {
 const body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
 const { name, email, phone, message, service } = body;
